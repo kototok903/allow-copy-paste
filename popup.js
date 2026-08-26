@@ -1,6 +1,5 @@
 const toggle = document.querySelector("#toggle");
 const hostnameLabel = document.querySelector("#hostname");
-const statusLabel = document.querySelector("#status");
 
 let currentTab;
 let currentSite;
@@ -33,9 +32,6 @@ function render() {
   toggle.querySelector(".sr-only").textContent = enabled
     ? "Disable on this site"
     : "Enable on this site";
-  statusLabel.textContent = enabled
-    ? "Enabled automatically whenever you visit this site."
-    : "Off on this site.";
 }
 
 async function enableSite() {
@@ -72,7 +68,6 @@ async function disableSite() {
 
 toggle.addEventListener("click", async () => {
   toggle.disabled = true;
-  statusLabel.textContent = enabled ? "Disabling…" : "Enabling…";
 
   try {
     if (enabled) {
@@ -84,7 +79,7 @@ toggle.addEventListener("click", async () => {
     enabled = !enabled;
     render();
   } catch (error) {
-    statusLabel.textContent = error.message || "Something went wrong.";
+    console.error(error);
   } finally {
     toggle.disabled = false;
   }
@@ -124,9 +119,8 @@ async function initialize() {
     requestAnimationFrame(() => {
       toggle.classList.add("ready");
     });
-  } catch (error) {
+  } catch {
     hostnameLabel.textContent = "Unavailable";
-    statusLabel.textContent = error.message || "This page is not supported.";
   }
 }
 

@@ -41,13 +41,6 @@ p {
   white-space: nowrap;
 }
 
-.status {
-  margin-top: 14px;
-  color: light-dark(#5f6368, #9aa0a6);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
 .switch {
   position: relative;
   flex: 0 0 auto;
