@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Allow Copy & Paste",
+  "description": "Restore normal copy, cut, and paste behavior on sites you choose.",
+  "version": "1.0.0",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "Allow Copy & Paste",
+    "default_popup": "popup.html"
+  }
+}

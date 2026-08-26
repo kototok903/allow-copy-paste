@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Allow Copy & Paste</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <div class="heading">
+        <div>
+          <h1>Copy &amp; Paste</h1>
+          <p id="hostname">Loading…</p>
+        </div>
+
+        <button id="toggle" class="switch" type="button" role="switch" aria-checked="false" disabled>
+          <span class="thumb"></span>
+          <span class="sr-only">Enable on this site</span>
+        </button>
+      </div>
+
+      <p id="status" class="status" aria-live="polite">Checking this site…</p>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
