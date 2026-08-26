@@ -22,4 +22,6 @@
       delete globalThis[stateKey];
     }
   };
+
+  chrome.runtime.sendMessage({ type: "content-active" }).catch(() => {});
 })();

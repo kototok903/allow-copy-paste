@@ -58,7 +58,6 @@ p {
   border-radius: 999px;
   background: light-dark(#bdc1c6, #5f6368);
   cursor: pointer;
-  transition: background 120ms ease;
 }
 
 .switch[aria-checked="true"] {
@@ -84,6 +83,13 @@ p {
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 1px 2px rgb(0 0 0 / 30%);
+}
+
+.switch.ready {
+  transition: background 120ms ease;
+}
+
+.switch.ready .thumb {
   transition: transform 120ms ease;
 }
 

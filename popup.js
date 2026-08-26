@@ -38,26 +38,6 @@ function render() {
     : "Off on this site.";
 }
 
-async function getEnabledSites() {
-  const { enabledSites = {} } = await chrome.storage.local.get("enabledSites");
-  return enabledSites;
-}
-
-async function setSiteStored(site, shouldEnable) {
-  const enabledSites = await getEnabledSites();
-
-  if (shouldEnable) {
-    enabledSites[site.hostname] = {
-      patterns: site.patterns,
-      scriptId: site.scriptId
-    };
-  } else {
-    delete enabledSites[site.hostname];
-  }
-
-  await chrome.storage.local.set({ enabledSites });
-}
-
 async function enableSite() {
   const granted = await chrome.permissions.request({
     origins: currentSite.patterns
@@ -67,51 +47,27 @@ async function enableSite() {
     throw new Error("Site access was not granted.");
   }
 
-  await chrome.scripting.registerContentScripts([
-    {
-      id: currentSite.scriptId,
-      matches: currentSite.patterns,
-      js: ["content.js"],
-      runAt: "document_start",
-      allFrames: true,
-      persistAcrossSessions: true
-    }
-  ]);
+  const response = await chrome.runtime.sendMessage({
+    type: "enable-site",
+    site: currentSite,
+    tabId: currentTab.id
+  });
 
-  await setSiteStored(currentSite, true);
-
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId: currentTab.id, allFrames: true },
-      files: ["content.js"]
-    });
-  } catch {
-    // Some pages contain frames from hosts we do not have permission to access.
-    // The persistent registration is still valid and will handle future loads.
-    await chrome.scripting.executeScript({
-      target: { tabId: currentTab.id },
-      files: ["content.js"]
-    });
+  if (!response?.ok) {
+    throw new Error(response?.error || "Unable to enable this site.");
   }
 }
 
 async function disableSite() {
-  await chrome.scripting.unregisterContentScripts({
-    ids: [currentSite.scriptId]
+  const response = await chrome.runtime.sendMessage({
+    type: "disable-site",
+    site: currentSite,
+    tabId: currentTab.id
   });
 
-  await setSiteStored(currentSite, false);
-
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId: currentTab.id, allFrames: true },
-      func: () => globalThis.__allowCopyPasteState__?.disable()
-    });
-  } catch {
-    // The page may have navigated or may contain inaccessible child frames.
+  if (!response?.ok) {
+    throw new Error(response?.error || "Unable to disable this site.");
   }
-
-  await chrome.permissions.remove({ origins: currentSite.patterns });
 }
 
 toggle.addEventListener("click", async () => {
@@ -145,20 +101,29 @@ async function initialize() {
     currentSite = siteFromUrl(currentTab.url);
     hostnameLabel.textContent = currentSite.hostname;
 
-    const enabledSites = await getEnabledSites();
     const registeredScripts = await chrome.scripting.getRegisteredContentScripts({
       ids: [currentSite.scriptId]
     });
 
     enabled = registeredScripts.length > 0;
 
-    if (enabled && !enabledSites[currentSite.hostname]) {
-      await setSiteStored(currentSite, true);
-    } else if (!enabled && enabledSites[currentSite.hostname]) {
-      await setSiteStored(currentSite, false);
-    }
+    await chrome.runtime.sendMessage({
+      type: "set-tab-icon",
+      tabId: currentTab.id,
+      enabled
+    });
+
     toggle.disabled = false;
     render();
+
+    // Commit the loaded position while transitions are still disabled. Without
+    // this layout read, Chrome may batch the state and `ready` changes together
+    // and animate the switch every time the popup opens.
+    void toggle.offsetWidth;
+
+    requestAnimationFrame(() => {
+      toggle.classList.add("ready");
+    });
   } catch (error) {
     hostnameLabel.textContent = "Unavailable";
     statusLabel.textContent = error.message || "This page is not supported.";
