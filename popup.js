@@ -67,18 +67,21 @@ async function disableSite() {
 }
 
 toggle.addEventListener("click", async () => {
+  const wasEnabled = enabled;
+
+  enabled = !enabled;
+  render();
   toggle.disabled = true;
 
   try {
-    if (enabled) {
+    if (wasEnabled) {
       await disableSite();
     } else {
       await enableSite();
     }
-
-    enabled = !enabled;
-    render();
   } catch (error) {
+    enabled = wasEnabled;
+    render();
     console.error(error);
   } finally {
     toggle.disabled = false;

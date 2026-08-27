@@ -128,10 +128,14 @@ async function enableSite(site, preferredTabId) {
     tabIds.add(preferredTabId);
   }
 
-  await Promise.all([...tabIds].map(async (tabId) => {
-    await injectIntoTab(tabId);
-    await setTabIcon(tabId, true);
-  }));
+  await Promise.all([...tabIds].map((tabId) => setTabIcon(tabId, true)));
+
+  // Registration and stored state are complete at this point. Injection into
+  // an already-open page is best-effort and must not hold the popup response
+  // open, especially on pages with many or slow child frames.
+  for (const tabId of tabIds) {
+    void injectIntoTab(tabId);
+  }
 }
 
 async function disableSite(site, preferredTabId) {
