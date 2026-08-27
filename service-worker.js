@@ -44,6 +44,25 @@ async function setTabIcon(tabId, enabled) {
   });
 }
 
+async function syncTabIcon(tabId, rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      await setTabIcon(tabId, false);
+      return;
+    }
+
+    const registrations = await chrome.scripting.getRegisteredContentScripts({
+      ids: [scriptIdFor(url.hostname)]
+    });
+
+    await setTabIcon(tabId, registrations.length > 0);
+  } catch {
+    await setTabIcon(tabId, false);
+  }
+}
+
 async function setSiteStored(site, shouldEnable) {
   const { enabledSites = {} } = await chrome.storage.local.get("enabledSites");
 
@@ -174,9 +193,9 @@ chrome.permissions.onAdded.addListener((permissions) => {
   }
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "loading") {
-    setTabIcon(tabId, false).catch(() => {});
+    syncTabIcon(tabId, changeInfo.url || tab.url).catch(() => {});
   }
 });
 
