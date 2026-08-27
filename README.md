@@ -1,6 +1,8 @@
 # Allow Copy & Paste
 
-A minimal Manifest V3 Chrome extension that restores normal copy, cut, and paste behavior on sites you choose.
+A minimal Chrome extension that restores normal copy, cut, and paste behavior on sites you choose.
+
+<img width="300" alt="CleanShot 2026-08-27 at 10 00 24@2x" src="https://github.com/user-attachments/assets/e2b650fd-9811-40eb-9fab-e1599777e2b0" />
 
 ## Install locally
 
@@ -11,10 +13,8 @@ A minimal Manifest V3 Chrome extension that restores normal copy, cut, and paste
 
 ## Use
 
-Open a regular HTTP or HTTPS page and click the extension icon. Turn the switch on to remember that hostname. The extension will run automatically at `document_start` on future visits.
+Open a regular HTTP or HTTPS page and click the extension icon. Turn the switch on to remember that hostname. The extension will run automatically on future visits.
 
-The toolbar icon is gray when the current page is off and blue when the extension is active on that page. On the first enable, Chrome may close the popup to show its site-access prompt; the background service worker completes activation after access is granted.
+The toolbar icon is gray when the current page is off and blue when the extension is active on that page. On the first enable, Chrome may show the site-access prompt.
 
-Turn the switch off to unregister the content script, remove the saved hostname, revoke its host permission, and disable the behavior in the current page.
-
-Chrome does not allow extensions to run on protected pages such as `chrome://` URLs or the Chrome Web Store.
+_Note: Chrome does not allow extensions to run on protected pages such as `chrome://` URLs or the Chrome Web Store._
